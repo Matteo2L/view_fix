@@ -95,6 +95,6 @@ class _HomePageState extends State<HomePage> {
 
   Widget _body(BuildContext context) => WebViewWidget3(
         url: _ipAddress,
-        key: UniqueKey(),
+        key: Key(_ipAddress),
       );
 }
