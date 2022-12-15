@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _ipAddressController = TextEditingController();
   String _ipAddress = 'https://flutter.dev';
-  final controller = Completer<WebViewController>();
+  final controller = Completer<WebViewController>(); // punto 1
 
   @override
   Widget build(BuildContext context) => Builder(builder: (context) {
@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
                   onFieldSubmitted: (value) {
                     setState(() {
                       _ipAddress = _ipAddressController.text;
+                      Navigator.pop(context);
                     });
                   },
                 ),
@@ -84,6 +85,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   setState(() {
                     _ipAddress = _ipAddressController.text;
+                    Navigator.pop(context);
                   });
                 },
                 child: const Text('Invia'),
