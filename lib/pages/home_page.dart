@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:app_view_fix/widgets/app_bar_title.dart';
 import 'package:app_view_fix/widgets/webview3.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -14,48 +14,20 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _ipAddressController = TextEditingController();
   String _ipAddress = 'https://flutter.dev';
-  final controller = Completer<WebViewController>(); // punto 1
+  WebViewController? controller;
 
   @override
   Widget build(BuildContext context) => Builder(builder: (context) {
         return Scaffold(
-          appBar: AppBar(
-            leading: appBarTitle(context),
-            // sovrascrivo il leading così da mettere il mio di menu icon child
-          ),
           body: _body(context),
-          drawer: _drawer(context, controller),
+          appBar: AppBarTitle(
+            controller: controller,
+          ),
+          drawer: _drawer(context),
         );
       });
 
-  Widget appBarTitle(BuildContext context) => Builder(builder: (context) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: InkWell(
-                customBorder: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                onTap: () => Scaffold.of(context).openDrawer(),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.all(8),
-                  child: const Icon(Icons.menu),
-                ),
-              ),
-            ),
-          ],
-        );
-      });
-
-  Widget _drawer(
-          BuildContext context, Completer<WebViewController> completer) =>
-      Drawer(
+  Widget _drawer(BuildContext context) => Drawer(
         child: ListView(
           children: [
             Form(
@@ -98,5 +70,6 @@ class _HomePageState extends State<HomePage> {
   Widget _body(BuildContext context) => WebViewWidget3(
         url: _ipAddress,
         key: Key(_ipAddress),
+        controller: controller,
       );
 }

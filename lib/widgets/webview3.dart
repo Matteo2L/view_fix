@@ -3,9 +3,11 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewWidget3 extends StatefulWidget {
   final String url;
+  final WebViewController? controller;
   const WebViewWidget3({
     super.key,
     required this.url,
+    this.controller,
   });
 
   @override
@@ -21,6 +23,9 @@ class _WebViewWidget3State extends State<WebViewWidget3> {
       child: newWebView = WebView(
         initialUrl: widget.url,
         javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (controller) {
+          controller = controller;
+        },
       ),
     );
   }
