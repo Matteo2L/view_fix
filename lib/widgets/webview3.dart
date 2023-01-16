@@ -19,14 +19,18 @@ class _WebViewWidget3State extends State<WebViewWidget3> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: newWebView = WebView(
-        initialUrl: widget.url,
-        javascriptMode: JavascriptMode.unrestricted,
-        onWebViewCreated: (controller) {
-          controller = controller;
-        },
-      ),
+    return Stack(
+      children: [
+        Container(
+          child: newWebView = WebView(
+            initialUrl: widget.url,
+            javascriptMode: JavascriptMode.unrestricted,
+            onWebViewCreated: (controller) {
+              controller = controller;
+            },
+          ),
+        ),
+      ],
     );
   }
 }

@@ -65,15 +65,15 @@ class _AppBarTitleState extends State<AppBarTitle> {
         Padding(
           padding: const EdgeInsets.all(0.0),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: const Icon(Icons.arrow_forward_ios),
             constraints: BoxConstraints(),
             iconSize: 24,
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
               if ((widget.controller != null)
-                  ? await widget.controller!.canGoBack()
+                  ? await widget.controller!.canGoForward()
                   : false) {
-                await widget.controller!.goBack();
+                await widget.controller!.goForward();
               } else {
                 messenger.showSnackBar(
                   const SnackBar(content: Text('No back history item')),
