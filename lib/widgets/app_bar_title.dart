@@ -3,9 +3,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 // AppBar personalizzata
 class AppBarTitle extends StatefulWidget implements PreferredSizeWidget {
-  final WebViewController? controller;
+  final WebViewController controller;
   const AppBarTitle({
-    this.controller,
+    required this.controller,
     super.key,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
 
@@ -50,9 +50,9 @@ class _AppBarTitleState extends State<AppBarTitle> {
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
               if ((widget.controller != null)
-                  ? await widget.controller!.canGoBack()
+                  ? await widget.controller.canGoBack()
                   : false) {
-                await widget.controller!.goBack();
+                await widget.controller.goBack();
               } else {
                 messenger.showSnackBar(
                   const SnackBar(content: Text('No back history item')),
@@ -66,14 +66,14 @@ class _AppBarTitleState extends State<AppBarTitle> {
           padding: const EdgeInsets.all(0.0),
           child: IconButton(
             icon: const Icon(Icons.arrow_forward_ios),
-            constraints: BoxConstraints(),
+            constraints: const BoxConstraints(),
             iconSize: 24,
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
               if ((widget.controller != null)
-                  ? await widget.controller!.canGoForward()
+                  ? await widget.controller.canGoForward()
                   : false) {
-                await widget.controller!.goForward();
+                await widget.controller.goForward();
               } else {
                 messenger.showSnackBar(
                   const SnackBar(content: Text('No back history item')),

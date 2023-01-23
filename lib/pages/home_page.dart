@@ -1,7 +1,6 @@
-import 'dart:async';
 import 'package:app_view_fix/widgets/app_bar_title.dart';
-import 'package:app_view_fix/widgets/webview3.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,14 +11,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _ipAddressController = TextEditingController();
+  final _ipAddressController = TextEditingController(text: 'http://');
   String _ipAddress = 'https://flutter.dev';
-  WebViewController? controller;
+  WebViewController controller = WebViewController()
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..setNavigationDelegate(NavigationDelegate())
+    ..loadRequest(Uri.parse('https://flutter.dev'));
 
   @override
   Widget build(BuildContext context) => Builder(builder: (context) {
         return Scaffold(
-          body: _body(context),
+          body: WebViewWidget(controller: controller),
           appBar: AppBarTitle(
             controller: controller,
           ),
@@ -57,7 +59,12 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   setState(() {
                     _ipAddress = _ipAddressController.text;
-                    Navigator.pop(context);
+                    if (Uri.parse(_ipAddress).isAbsolute) {
+                      controller.loadRequest(Uri.parse(_ipAddress));
+                      Navigator.pop(context);
+                    } else {
+                      Fluttertoast.showToast(msg: 'Use absolute path');
+                    }
                   });
                 },
                 child: const Text('Invia'),
@@ -67,9 +74,11 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
+/*
   Widget _body(BuildContext context) => WebViewWidget3(
         url: _ipAddress,
         key: Key(_ipAddress),
         controller: controller,
       );
+      */
 }
