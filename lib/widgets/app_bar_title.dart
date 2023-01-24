@@ -42,6 +42,17 @@ class _AppBarTitleState extends State<AppBarTitle> {
       centerTitle: true,
       actions: [
         Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: IconButton(
+            icon: const Icon(Icons.replay),
+            constraints: const BoxConstraints(),
+            iconSize: 24,
+            onPressed: () async {
+              await widget.controller.reload();
+            },
+          ),
+        ),
+        Padding(
           padding: const EdgeInsets.all(0.0),
           child: IconButton(
             icon: const Icon(Icons.arrow_back_ios),
