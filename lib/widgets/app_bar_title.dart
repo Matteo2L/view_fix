@@ -76,7 +76,7 @@ class _AppBarTitleState extends State<AppBarTitle> {
                 await widget.controller.goForward();
               } else {
                 messenger.showSnackBar(
-                  const SnackBar(content: Text('No back history item')),
+                  const SnackBar(content: Text('No forward history item')),
                 );
                 return;
               }
