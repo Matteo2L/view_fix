@@ -29,6 +29,19 @@ class _HomePageState extends State<HomePage> {
         );
       });
 
+  updateUrl() {
+    if (Uri.parse(_ipAddress).isAbsolute) {
+      controller.loadRequest(Uri.parse(_ipAddress));
+      Navigator.pop(context);
+    } else {
+      Fluttertoast.showToast(msg: 'Use absolute path');
+      _ipAddress.trim();
+      _ipAddress = 'http://$_ipAddress';
+      controller.loadRequest(Uri.parse(_ipAddress));
+      Navigator.pop(context);
+    }
+  }
+
   Widget _drawer(BuildContext context) => Drawer(
         child: ListView(
           children: [
@@ -44,7 +57,8 @@ class _HomePageState extends State<HomePage> {
                   onFieldSubmitted: (value) {
                     setState(() {
                       _ipAddress = _ipAddressController.text;
-                      Navigator.pop(context);
+                      updateUrl();
+                      _ipAddressController.text = _ipAddress;
                     });
                   },
                 ),
@@ -59,12 +73,8 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   setState(() {
                     _ipAddress = _ipAddressController.text;
-                    if (Uri.parse(_ipAddress).isAbsolute) {
-                      controller.loadRequest(Uri.parse(_ipAddress));
-                      Navigator.pop(context);
-                    } else {
-                      Fluttertoast.showToast(msg: 'Use absolute path');
-                    }
+                    updateUrl();
+                    _ipAddressController.text = _ipAddress;
                   });
                 },
                 child: const Text('Invia'),
