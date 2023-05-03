@@ -83,7 +83,6 @@ Page resource error:
           .loadRequest(Uri.parse(_ipAddress))
           .timeout(const Duration(seconds: 5));
 
-      ;
       Navigator.pop(context);
     } else {
       Fluttertoast.showToast(msg: 'Use absolute path');
