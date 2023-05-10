@@ -62,9 +62,9 @@ Page resource error:
             height: 68,
             child: FloatingActionButton(
               child: Icon(
-                Icons.settings_display,
+                Icons.wb_incandescent_outlined,
                 size: 48,
-                color: wakelockEnable ? Colors.red : Colors.white,
+                color: wakelockEnable ? Colors.black : Colors.white,
               ),
               onPressed: () {
                 setState(() {
