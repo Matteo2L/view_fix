@@ -1,6 +1,6 @@
 {
-    "name": "app_view_fix",
-    "short_name": "app_view_fix",
+    "name": "view_fix",
+    "short_name": "view_fix",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

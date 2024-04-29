@@ -1,4 +1,4 @@
-import 'package:app_view_fix/pages/home_page.dart';
+import 'package:view_fix/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {

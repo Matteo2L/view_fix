@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "app_view_fix",
+            "name": "view_fix",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "app_view_fix (profile mode)",
+            "name": "view_fix (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "app_view_fix (release mode)",
+            "name": "view_fix (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
