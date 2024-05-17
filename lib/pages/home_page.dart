@@ -1,6 +1,6 @@
 import 'package:view_fix/widgets/app_bar_title.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+//import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wakelock/wakelock.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -85,7 +85,7 @@ Page resource error:
 
       Navigator.pop(context);
     } else {
-      Fluttertoast.showToast(msg: 'Use absolute path');
+ //     Fluttertoast.showToast(msg: 'Use absolute path');
       _ipAddress.trim();
       _ipAddress = 'http://$_ipAddress';
       controller
