@@ -1,4 +1,4 @@
-package com.example.view_fix
+package webView.view_fix
 
 import io.flutter.embedding.android.FlutterActivity
 
