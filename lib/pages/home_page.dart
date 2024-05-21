@@ -106,7 +106,7 @@ Page resource error:
                     labelText: 'Indirizzo IP',
                   ),
                   controller: _ipAddressController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.url,
                   onFieldSubmitted: (value) {
                     setState(() {
                       _ipAddress = _ipAddressController.text;

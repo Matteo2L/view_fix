@@ -38,7 +38,7 @@ class _AppBarTitleState extends State<AppBarTitle> {
           ),
         ),
       ),
-      title: const Text('Web view app'),
+      title: const Text('Wiev fix'),
       centerTitle: true,
       actions: [
         Padding(
