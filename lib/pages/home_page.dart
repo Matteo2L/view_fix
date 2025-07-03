@@ -1,7 +1,7 @@
 import 'package:view_fix/widgets/app_bar_title.dart';
 import 'package:flutter/material.dart';
 //import 'package:fluttertoast/fluttertoast.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -69,7 +69,7 @@ Page resource error:
               onPressed: () {
                 setState(() {
                   wakelockEnable = !wakelockEnable;
-                  Wakelock.toggle(enable: wakelockEnable);
+                  WakelockPlus.toggle(enable: wakelockEnable);
                 });
               },
             ),
