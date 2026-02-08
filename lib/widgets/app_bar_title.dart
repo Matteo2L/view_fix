@@ -10,6 +10,7 @@ class AppBarTitle extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
   final VoidCallback onZoomReset;
+  final VoidCallback onInteraction;
 
   const AppBarTitle({
     required this.controller,
@@ -18,6 +19,7 @@ class AppBarTitle extends StatefulWidget implements PreferredSizeWidget {
     required this.onZoomIn,
     required this.onZoomOut,
     required this.onZoomReset,
+    required this.onInteraction,
     super.key,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
 
@@ -74,7 +76,10 @@ class _AppBarTitleState extends State<AppBarTitle> {
           customBorder: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          onTap: () => Scaffold.of(context).openDrawer(),
+          onTap: () {
+            widget.onInteraction();
+            Scaffold.of(context).openDrawer();
+          },
           child: Container(
             decoration: BoxDecoration(
               color: Colors.transparent,
@@ -97,7 +102,10 @@ class _AppBarTitleState extends State<AppBarTitle> {
             ),
             constraints: const BoxConstraints(),
             iconSize: 24,
-            onPressed: _toggleFavorite,
+            onPressed: () {
+              widget.onInteraction();
+              _toggleFavorite();
+            },
             tooltip: _isFavorite ? 'Remove from favorites' : 'Add to favorites',
           ),
         ),
@@ -108,6 +116,7 @@ class _AppBarTitleState extends State<AppBarTitle> {
             constraints: const BoxConstraints(),
             iconSize: 24,
             onPressed: () async {
+              widget.onInteraction();
               await widget.controller.reload();
             },
           ),
@@ -119,6 +128,7 @@ class _AppBarTitleState extends State<AppBarTitle> {
             constraints: const BoxConstraints(),
             iconSize: 24,
             onPressed: () async {
+              widget.onInteraction();
               final messenger = ScaffoldMessenger.of(context);
               if (await widget.controller.canGoBack()) {
                 await widget.controller.goBack();
@@ -138,6 +148,7 @@ class _AppBarTitleState extends State<AppBarTitle> {
             constraints: const BoxConstraints(),
             iconSize: 24,
             onPressed: () async {
+              widget.onInteraction();
               final messenger = ScaffoldMessenger.of(context);
               if (await widget.controller.canGoForward()) {
                 await widget.controller.goForward();
@@ -152,6 +163,7 @@ class _AppBarTitleState extends State<AppBarTitle> {
         ),
         PopupMenuButton<String>(
           onSelected: (String value) {
+            widget.onInteraction();
             if (value == 'zoom_in') {
               widget.onZoomIn();
             } else if (value == 'zoom_out') {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:view_fix/widgets/app_bar_title.dart';
 import 'package:flutter/material.dart';
 //import 'package:fluttertoast/fluttertoast.dart';
@@ -18,46 +19,91 @@ class _HomePageState extends State<HomePage> {
   String _ipAddress = 'https://flutter.dev';
   List<FavoriteUrl> _favorites = [];
   double _zoomLevel = 1.0;
+  bool _showAppBar = true;
+  Timer? _hideTimer;
 
-  WebViewController controller = WebViewController()
-    ..setJavaScriptMode(JavaScriptMode.unrestricted)
-    ..setNavigationDelegate(
-      NavigationDelegate(
-        onProgress: (int progress) {
-          debugPrint('WebView is loading (progress : $progress%)');
-        },
-        onPageStarted: (String url) {
-          debugPrint('Page started loading: $url');
-        },
-        onPageFinished: (String url) {
-          debugPrint('Page finished loading: $url');
-          // Update the address bar when page finishes loading
-        },
-        onWebResourceError: (WebResourceError error) {
-          debugPrint('''
-Page resource error:
-  code: ${error.errorCode}
-  description: ${error.description}
-  errorType: ${error.errorType}
-  isForMainFrame: ${error.isForMainFrame}
-          ''');
-        },
-        onNavigationRequest: (NavigationRequest request) {
-          if (request.url.startsWith('https://www.youtube.com/')) {
-            debugPrint('blocking navigation to ${request.url}');
-            return NavigationDecision.prevent;
-          }
-          debugPrint('allowing navigation to ${request.url}');
-          return NavigationDecision.navigate;
-        },
-      ),
-    )
-    ..loadRequest(Uri.parse('https://flutter.dev'));
+  late final WebViewController controller;
 
   @override
   void initState() {
     super.initState();
     _loadFavorites();
+    _startHideTimer();
+    controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            debugPrint('WebView is loading (progress : $progress%)');
+          },
+          onPageStarted: (String url) {
+            debugPrint('Page started loading: $url');
+          },
+          onPageFinished: (String url) {
+            debugPrint('Page finished loading: $url');
+            // Inject touch/click listener so WebView can notify Flutter of taps
+            controller.runJavaScript(
+              '''(function(){
+                try {
+                  if (window._flutterTapBridgeInstalled) return;
+                  window._flutterTapBridgeInstalled = true;
+                  function post() { window.TouchBridge && window.TouchBridge.postMessage('tap'); }
+                  document.addEventListener('touchstart', post, {passive:true});
+                  document.addEventListener('click', post, {passive:true});
+                } catch(e) {}
+              })();''',
+            );
+          },
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('''
+WebView resource error:
+  code: ${error.errorCode}
+  description: ${error.description}
+  errorType: ${error.errorType}
+  isForMainFrame: ${error.isForMainFrame}
+            ''');
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.startsWith('https://www.youtube.com/')) {
+              debugPrint('blocking navigation to ${request.url}');
+              return NavigationDecision.prevent;
+            }
+            debugPrint('allowing navigation to ${request.url}');
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..addJavaScriptChannel('TouchBridge', onMessageReceived: (message) {
+        _resetHideTimer();
+      })
+      ..loadRequest(Uri.parse('https://flutter.dev'));
+  }
+
+  @override
+  void dispose() {
+    _hideTimer?.cancel();
+    _ipAddressController.dispose();
+    super.dispose();
+  }
+
+  void _startHideTimer() {
+    _hideTimer?.cancel();
+    _hideTimer = Timer(const Duration(seconds: 8), () {
+      if (mounted) {
+        setState(() {
+          _showAppBar = false;
+        });
+      }
+    });
+  }
+
+  void _resetHideTimer() {
+    if (mounted) {
+      setState(() {
+        _showAppBar = true;
+      });
+      _startHideTimer();
+    }
   }
 
   Future<void> _loadFavorites() async {
@@ -99,37 +145,76 @@ Page resource error:
   }
 
   @override
-  Widget build(BuildContext context) => Builder(builder: (context) {
-        return Scaffold(
-          body: WebViewWidget(controller: controller),
-          appBar: AppBarTitle(
-            controller: controller,
-            currentUrl: _ipAddress,
-            onFavoriteChanged: _onFavoriteChanged,
-            onZoomIn: _zoomIn,
-            onZoomOut: _zoomOut,
-            onZoomReset: _resetZoom,
-          ),
-          drawer: _drawer(context),
-          floatingActionButton: SizedBox(
-            width: 68,
-            height: 68,
-            child: FloatingActionButton(
-              child: Icon(
-                Icons.wb_incandescent_outlined,
-                size: 48,
-                color: wakelockEnable ? Colors.black : Colors.white,
+  Widget build(BuildContext context) => Builder(
+        builder: (context) {
+          return GestureDetector(
+            onTap: _resetHideTimer,
+            child: Scaffold(
+              body: Stack(
+                children: [
+                  WebViewWidget(controller: controller),
+                  // Thin transparent tap area at the top to reliably detect taps
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 48,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: _resetHideTimer,
+                      child: Container(color: Colors.transparent),
+                    ),
+                  ),
+                ],
               ),
-              onPressed: () {
-                setState(() {
-                  wakelockEnable = !wakelockEnable;
-                  WakelockPlus.toggle(enable: wakelockEnable);
-                });
-              },
+              appBar: _showAppBar
+                  ? AppBarTitle(
+                      controller: controller,
+                      currentUrl: _ipAddress,
+                      onFavoriteChanged: _onFavoriteChanged,
+                      onZoomIn: _zoomIn,
+                      onZoomOut: _zoomOut,
+                      onZoomReset: _resetZoom,
+                      onInteraction: _resetHideTimer,
+                    )
+                  : null,
+              drawer: _drawer(context),
+              floatingActionButton: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (!_showAppBar)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: FloatingActionButton(
+                        mini: true,
+                        onPressed: _resetHideTimer,
+                        tooltip: 'Show toolbar',
+                        child: const Icon(Icons.arrow_upward, size: 20),
+                      ),
+                    ),
+                  SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          wakelockEnable = !wakelockEnable;
+                          WakelockPlus.toggle(enable: wakelockEnable);
+                        });
+                      },
+                      child: Icon(
+                        Icons.wb_incandescent_outlined,
+                        size: 36,
+                        color: wakelockEnable ? Colors.black : Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      });
+          );
+        },
+      );
 
   void updateUrl() {
     if (Uri.parse(_ipAddress).isAbsolute) {
