@@ -17,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   bool wakelockEnable = true;
   String _ipAddress = 'https://flutter.dev';
   List<FavoriteUrl> _favorites = [];
+  double _zoomLevel = 1.0;
 
   WebViewController controller = WebViewController()
     ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -70,6 +71,33 @@ Page resource error:
     _loadFavorites();
   }
 
+  Future<void> _zoomIn() async {
+    setState(() {
+      _zoomLevel = (_zoomLevel + 0.1).clamp(0.5, 3.0);
+    });
+    await controller.runJavaScript(
+      'document.body.style.zoom = "$_zoomLevel";',
+    );
+  }
+
+  Future<void> _zoomOut() async {
+    setState(() {
+      _zoomLevel = (_zoomLevel - 0.1).clamp(0.5, 3.0);
+    });
+    await controller.runJavaScript(
+      'document.body.style.zoom = "$_zoomLevel";',
+    );
+  }
+
+  Future<void> _resetZoom() async {
+    setState(() {
+      _zoomLevel = 1.0;
+    });
+    await controller.runJavaScript(
+      'document.body.style.zoom = "1.0";',
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Builder(builder: (context) {
         return Scaffold(
@@ -78,6 +106,9 @@ Page resource error:
             controller: controller,
             currentUrl: _ipAddress,
             onFavoriteChanged: _onFavoriteChanged,
+            onZoomIn: _zoomIn,
+            onZoomOut: _zoomOut,
+            onZoomReset: _resetZoom,
           ),
           drawer: _drawer(context),
           floatingActionButton: SizedBox(
@@ -100,7 +131,7 @@ Page resource error:
         );
       });
 
-  updateUrl() {
+  void updateUrl() {
     if (Uri.parse(_ipAddress).isAbsolute) {
       controller
           .loadRequest(Uri.parse(_ipAddress))
@@ -240,7 +271,7 @@ Page resource error:
                     Navigator.pop(context);
                   },
                 );
-              }).toList(),
+              }),
           ],
         ),
       );

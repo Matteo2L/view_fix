@@ -7,11 +7,17 @@ class AppBarTitle extends StatefulWidget implements PreferredSizeWidget {
   final WebViewController controller;
   final String currentUrl;
   final VoidCallback onFavoriteChanged;
+  final VoidCallback onZoomIn;
+  final VoidCallback onZoomOut;
+  final VoidCallback onZoomReset;
 
   const AppBarTitle({
     required this.controller,
     required this.currentUrl,
     required this.onFavoriteChanged,
+    required this.onZoomIn,
+    required this.onZoomOut,
+    required this.onZoomReset,
     super.key,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
 
@@ -114,9 +120,7 @@ class _AppBarTitleState extends State<AppBarTitle> {
             iconSize: 24,
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
-              if ((widget.controller != null)
-                  ? await widget.controller.canGoBack()
-                  : false) {
+              if (await widget.controller.canGoBack()) {
                 await widget.controller.goBack();
               } else {
                 messenger.showSnackBar(
@@ -135,9 +139,7 @@ class _AppBarTitleState extends State<AppBarTitle> {
             iconSize: 24,
             onPressed: () async {
               final messenger = ScaffoldMessenger.of(context);
-              if ((widget.controller != null)
-                  ? await widget.controller.canGoForward()
-                  : false) {
+              if (await widget.controller.canGoForward()) {
                 await widget.controller.goForward();
               } else {
                 messenger.showSnackBar(
@@ -147,6 +149,50 @@ class _AppBarTitleState extends State<AppBarTitle> {
               }
             },
           ),
+        ),
+        PopupMenuButton<String>(
+          onSelected: (String value) {
+            if (value == 'zoom_in') {
+              widget.onZoomIn();
+            } else if (value == 'zoom_out') {
+              widget.onZoomOut();
+            } else if (value == 'zoom_reset') {
+              widget.onZoomReset();
+            }
+          },
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            const PopupMenuItem<String>(
+              value: 'zoom_in',
+              child: Row(
+                children: [
+                  Icon(Icons.zoom_in, size: 20),
+                  SizedBox(width: 12),
+                  Text('Zoom In'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'zoom_out',
+              child: Row(
+                children: [
+                  Icon(Icons.zoom_out, size: 20),
+                  SizedBox(width: 12),
+                  Text('Zoom Out'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'zoom_reset',
+              child: Row(
+                children: [
+                  Icon(Icons.restore, size: 20),
+                  SizedBox(width: 12),
+                  Text('Reset Zoom'),
+                ],
+              ),
+            ),
+          ],
+          icon: const Icon(Icons.more_vert),
         ),
       ],
     );
