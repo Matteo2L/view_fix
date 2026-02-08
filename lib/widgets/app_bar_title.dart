@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:view_fix/services/favorites_service.dart';
 
 // AppBar personalizzata
 class AppBarTitle extends StatefulWidget implements PreferredSizeWidget {
   final WebViewController controller;
+  final String currentUrl;
+  final VoidCallback onFavoriteChanged;
+
   const AppBarTitle({
     required this.controller,
+    required this.currentUrl,
+    required this.onFavoriteChanged,
     super.key,
   }) : preferredSize = const Size.fromHeight(kToolbarHeight);
 
@@ -17,6 +23,41 @@ class AppBarTitle extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _AppBarTitleState extends State<AppBarTitle> {
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+  }
+
+  @override
+  void didUpdateWidget(AppBarTitle oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentUrl != widget.currentUrl) {
+      _checkIfFavorite();
+    }
+  }
+
+  Future<void> _checkIfFavorite() async {
+    final isFav = await FavoritesService.isFavorite(widget.currentUrl);
+    if (mounted) {
+      setState(() {
+        _isFavorite = isFav;
+      });
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_isFavorite) {
+      await FavoritesService.removeFavorite(widget.currentUrl);
+    } else {
+      await FavoritesService.addFavorite(widget.currentUrl, widget.currentUrl);
+    }
+    widget.onFavoriteChanged();
+    await _checkIfFavorite();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -41,6 +82,19 @@ class _AppBarTitleState extends State<AppBarTitle> {
       title: const Text('Wiev fix'),
       centerTitle: true,
       actions: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: IconButton(
+            icon: Icon(
+              _isFavorite ? Icons.star : Icons.star_outline,
+              color: _isFavorite ? Colors.amber : null,
+            ),
+            constraints: const BoxConstraints(),
+            iconSize: 24,
+            onPressed: _toggleFavorite,
+            tooltip: _isFavorite ? 'Remove from favorites' : 'Add to favorites',
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
