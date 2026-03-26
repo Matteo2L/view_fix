@@ -196,6 +196,7 @@ WebView resource error:
                     width: 56,
                     height: 56,
                     child: FloatingActionButton(
+                      backgroundColor: null,
                       onPressed: () {
                         setState(() {
                           wakelockEnable = !wakelockEnable;
@@ -203,9 +204,9 @@ WebView resource error:
                         });
                       },
                       child: Icon(
-                        Icons.wb_incandescent_outlined,
+                        wakelockEnable ? Icons.wb_incandescent : Icons.wb_incandescent_outlined,
                         size: 36,
-                        color: wakelockEnable ? Colors.black : Colors.white,
+                        color: wakelockEnable ? Colors.amber : Colors.grey,
                       ),
                     ),
                   ),
