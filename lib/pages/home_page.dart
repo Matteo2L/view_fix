@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:view_fix/widgets/app_bar_title.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 //import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:view_fix/services/favorites_service.dart';
 
@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  static const _wakelockChannel = MethodChannel('com.viewfix/wakelock');
   final _ipAddressController = TextEditingController(text: 'http://');
   bool wakelockEnable = true;
   String _ipAddress = 'https://flutter.dev';
@@ -29,7 +30,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initForegroundTask();
+    _setNativeWakelock(true);
     _loadFavorites();
     _startHideTimer();
     controller = WebViewController()
@@ -97,35 +98,8 @@ WebView resource error:
     }
   }
 
-  void _initForegroundTask() {
-    FlutterForegroundTask.init(
-      androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'view_fix_foreground',
-        channelName: 'View Fix',
-        channelDescription: 'Keeps the screen on',
-      ),
-      iosNotificationOptions: const IOSNotificationOptions(),
-      foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: ForegroundTaskEventAction.nothing(),
-        autoRunOnBoot: false,
-        autoRunOnMyPackageReplaced: false,
-        allowWakeLock: true,
-        allowWifiLock: false,
-      ),
-    );
-    FlutterForegroundTask.requestNotificationPermission();
-    _startForegroundTask();
-  }
-
-  Future<void> _startForegroundTask() async {
-    await FlutterForegroundTask.startService(
-      notificationTitle: 'View Fix',
-      notificationText: 'Keeping the screen on',
-    );
-  }
-
-  Future<void> _stopForegroundTask() async {
-    await FlutterForegroundTask.stopService();
+  Future<void> _setNativeWakelock(bool enable) async {
+    await _wakelockChannel.invokeMethod(enable ? 'enable' : 'disable');
   }
 
   void _startHideTimer() {
@@ -243,11 +217,7 @@ WebView resource error:
                         setState(() {
                           wakelockEnable = !wakelockEnable;
                           WakelockPlus.toggle(enable: wakelockEnable);
-                          if (wakelockEnable) {
-                            _startForegroundTask();
-                          } else {
-                            _stopForegroundTask();
-                          }
+                          _setNativeWakelock(wakelockEnable);
                         });
                       },
                       child: Icon(
